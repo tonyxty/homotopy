@@ -1,47 +1,42 @@
-{-# OPTIONS --safe --without-K #-}
-open import Categories.Category
+{-# OPTIONS --safe --cubical --without-K #-}
+open import Cubical.Categories.Category.Base
 
-module FactorizationSystem {o ℓ e} (𝒞 : Category o ℓ e) where
+module FactorizationSystem {ℓ ℓ'} (C : Precategory ℓ ℓ') where
 
-open import Lifting 𝒞
-open import Level
-open import Data.Product
-open import Relation.Binary.PropositionalEquality
+open import Cubical.Foundations.Everything hiding (⋆)
+open import Cubical.Data.Sigma
+open import Cubical.Categories.Category
+open import Cubical.HITs.PropositionalTruncation
+open import Lifting C
 
-open Category 𝒞
+open Precategory C
 
 private
   variable
     p : Level
-    a b c d : Obj
-    f : a ⇒ b
-    g : c ⇒ d
+    a b c d : ob
+    f : Hom[ a , b ]
+    g : Hom[ c , d ]
 
--- should really be "a ⇒ b → Prop"
-ClassOfMorphism : (p : Level) → Set _
-ClassOfMorphism p = ∀ {a b} → a ⇒ b → Set p
+ClassOfMorphism : (p : Level) → Type _
+ClassOfMorphism p = ∀ {a b} → Hom[ a , b ] → hProp p
 
-Factorize : ClassOfMorphism p → ClassOfMorphism p → a ⇒ b → Set _
-Factorize {a = a} {b = b} ℒ ℛ f = ∃[ c ] (Σ[ g ∈ a ⇒ c ] ℒ g × Σ[ h ∈ c ⇒ b ] ℛ h × f ≈ h ∘ g)
+Factorize : ClassOfMorphism p → ClassOfMorphism p → Hom[ a , b ] → Type _
+Factorize {a = a} {b = b} ℒ ℛ f =
+  Σ[ c ∈ ob ] (Σ[ g ∈ Hom[ a , c ] ] typ (ℒ g) × (Σ[ h ∈ Hom[ c , b ] ] typ (ℛ h) × (f ≡ g ⋆ h)))
 
-factors : ∀ {ℒ ℛ : ClassOfMorphism p} {a b} {f : a ⇒ b} → (F : Factorize ℒ ℛ f) → ∃[ c ] (a ⇒ c × c ⇒ b)
-factors F = proj₁ F , proj₁ (proj₂ F) , proj₁ (proj₂ (proj₂ (proj₂ F)))
-
-record FactorizationSystem (p : Level) : Set (o ⊔ ℓ ⊔ e ⊔ suc p) where
+record FactorizationSystem (p : Level) : Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc p)) where
   field
     ℒ : ClassOfMorphism p
     ℛ : ClassOfMorphism p
     factorize : Factorize ℒ ℛ f
-    lifting : ℒ f → ℛ g → f HasLiftingProperty g
-    ℒ-byLifting : (∀ {c d} {g : c ⇒ d} → ℛ g → f HasLiftingProperty g) → ℒ f
-    ℛ-byLifting : (∀ {a b} {f : a ⇒ b} → ℒ f → f HasLiftingProperty g) → ℛ g
+    lifting : typ (ℒ f) → typ (ℛ g) → f HasLiftingProperty g
+    ℒ-byLifting : (∀ {c d} {g : Hom[ c , d ]} → typ (ℛ g) → f HasLiftingProperty g) → typ (ℒ f)
+    ℛ-byLifting : (∀ {a b} {f : Hom[ a , b ]} → typ (ℒ f) → f HasLiftingProperty g) → typ (ℛ g)
 
-record OrthogonalFactorizationSystem (p : Level) : Set (o ⊔ ℓ ⊔ e ⊔ suc p) where
+record OrthogonalFactorizationSystem (p : Level) : Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc p)) where
   field
     factorization : FactorizationSystem p
   open FactorizationSystem factorization
   field
-    uniqueness : ∀ {a b} {f : a ⇒ b} {F F' : Factorize ℒ ℛ f} → Σ[ e ∈ proj₁ F ≡ proj₁ F' ]
-      factors {ℒ = ℒ} {ℛ = ℛ} F ≡ factors {ℒ = ℒ} {ℛ = ℛ} F'
-    -- we cannot just say F ≡ F' since we lack the ability to truncate ℒ and ℛ without cubical
-    -- and why is agda unable to infer ℒ and ℛ here?
+    uniqueness : isProp (Factorize ℒ ℛ f)
