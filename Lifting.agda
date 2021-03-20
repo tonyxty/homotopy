@@ -1,20 +1,23 @@
-{-# OPTIONS --safe --without-K #-}
-open import Categories.Category
+{-# OPTIONS --safe --cubical --without-K #-}
+open import Cubical.Categories.Category.Base
 
-module Lifting {o ℓ e} (𝒞 : Category o ℓ e) where
+module Lifting {ℓ ℓ'} (C : Precategory ℓ ℓ') where
 
-open import Level
-open import Data.Product
+open import Cubical.Foundations.Prelude
+open import Cubical.Data.Sigma.Base
+open import Cubical.HITs.PropositionalTruncation.Base
 
-open Category 𝒞
+open Precategory C
+
+-- the notions can be defined for precategories, but is probably only useful when C is a category.
 
 private
   variable
-    a b c d : Obj
-    f : a ⇒ b
-    g : c ⇒ d
-    u : a ⇒ c
-    v : b ⇒ d
+    a b c d : ob
+    f : Hom[ a , b ]
+    g : Hom[ c , d ]
+    u : Hom[ a , c ]
+    v : Hom[ b , d ]
 
 {-
   a--u->c
@@ -26,11 +29,11 @@ private
   b--v->d
 -}
 
-LiftingProblem : a ⇒ b → c ⇒ d → a ⇒ c → b ⇒ d → Set _
-LiftingProblem f g u v = CommutativeSquare f u v g where open Definitions 𝒞
+LiftingProblem : Hom[ a , b ] → Hom[ c , d ] → Hom[ a , c ] → Hom[ b , d ] → Type _
+LiftingProblem f g u v = f ⋆ v ≡ u ⋆ g
 
-LiftingSolution : LiftingProblem f g u v → Set _
-LiftingSolution {f = f} {g = g} {u = u} {v = v} _ = ∃[ γ ] (u ≈ γ ∘ f × v ≈ g ∘ γ)
+LiftingSolution : LiftingProblem f g u v → Type _
+LiftingSolution {f = f} {g = g} {u = u} {v = v} _ = Σ[ γ ∈ _ ] ((u ≡ f ⋆ γ) × (v ≡ γ ⋆ g))
 
-_HasLiftingProperty_ : a ⇒ b → c ⇒ d → Set _
-f HasLiftingProperty g = ∀ {u v} → (P : LiftingProblem f g u v) → LiftingSolution P
+_HasLiftingProperty_ : Hom[ a , b ] → Hom[ c , d ] → Type _
+f HasLiftingProperty g = ∀ {u v} → (P : LiftingProblem f g u v) → ∥ LiftingSolution P ∥
