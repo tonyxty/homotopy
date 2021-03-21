@@ -14,16 +14,18 @@ open import Lifting (SET ℓ)
 
 open Precategory (SET ℓ)
 
-surj-inj-lift : ∀ {a b c d : ob} {f : Hom[ a , b ]} {g : Hom[ c , d ]} →
-  ∃[ h ∈ _ ] (section f h) → isEmbedding g → _HasLiftingProperty_ {a = a} {b = b} {c = c} {d = d} f g
-surj-inj-lift {a@(A , _)} {b@(B , _)} {c@(C , _)} {d@(D , _)} {f} {g} f-surj g-emb {u = u} {v = v} P =
-  map (helper g-inj) f-surj'
+AxiomOfChoice = ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} (B : A → Set ℓ₂) → (∀ x → ∥ B x ∥) → ∥(∀ x → B x)∥
+
+epi-mono-lift : ∀ {a b c d : ob} {f : Hom[ a , b ]} {g : Hom[ c , d ]} →
+  AxiomOfChoice → isSurjection f → isEmbedding g → _HasLiftingProperty_ {a = a} {b = b} {c = c} {d = d} f g
+epi-mono-lift {a@(A , _)} {b@(B , _)} {c@(C , _)} {d@(D , _)} {f} {g} ac f-epic g-monic {u = u} {v = v} P =
+  map (helper g-inj) f-surj
   where
-  f-surj' : ∥ (∀ x → fiber f x) ∥
-  f-surj' = map (λ(h , s) x → h x , s x) f-surj
+  f-surj : ∥ (∀ x → fiber f x) ∥
+  f-surj = ac (fiber f) f-epic
 
   g-inj : ∀ {x x'} → g x ≡ g x' → x ≡ x'
-  g-inj {x} {x'} p = cong fst (isEmbedding→hasPropFibers g-emb (g x') (x , p) (x' , refl))
+  g-inj {x} {x'} p = cong fst (isEmbedding→hasPropFibers g-monic (g x') (x , p) (x' , refl))
 
   helper : (∀ {x x'} → g x ≡ g x' → x ≡ x') → (∀ x → fiber f x) → LiftingSolution {a} {b} {f} {c} {d} {g} {u} {v} P
   helper t s = (λ x → u (fst (s x))) , funExt (λ x → t (sym (funExt⁻ P x) ∙ right-comm (f x))) , funExt right-comm
