@@ -43,8 +43,8 @@ module _ {a b : hSet o} (f : typ a → typ b) where
   epi-mono-factorize =
     Range , epicFactor , epicFactor-isEpic , monicFactor , monicFactor-isMonic , refl
 
-lifting-monic→epic : ∀ {a b : ob} {f : fst a → fst b} →
-  (∀ {c d : ob} {g : fst c → fst d} → typ (isMonic {c} {d} g) → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
+lifting-monic→epic : ∀ {a b : ob} {f : typ a → typ b} →
+  (∀ {c d : ob} {g : typ c → typ d} → typ (isMonic {c} {d} g) → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
   typ (isEpic {a} {b} f)
 lifting-monic→epic {a} {b} {f} H x = rec propTruncIsProp helper (H {c} {d} g-isMonic {u} {v} refl)
   where
@@ -61,10 +61,22 @@ lifting-monic→epic {a} {b} {f} H x = rec propTruncIsProp helper (H {c} {d} g-i
     helper' : fiber u (γ x) → fiber f x
     helper' (x' , p) = x' , cong fst p ∙ sym (funExt⁻ right-comm x)
 
-epic-lifting→monic : ∀ {c d : ob} {g : fst c → fst d} →
-  (∀ {a b : ob} {f : fst a → fst b} → typ (isEpic {a} {b} f) → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
+epic-lifting→monic : ∀ {c d : ob} {g : typ c → typ d} →
+  (∀ {a b : ob} {f : typ a → typ b} → typ (isEpic {a} {b} f) → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
   typ (isMonic {c} {d} g)
-epic-lifting→monic {c} {d} {g} H = {!!}
+epic-lifting→monic {c} {d} {g} H = injEmbedding (str c) (str d)
+  (rec (isProp→ (snd c _ _)) (λ P → helper P _ _) (H {a} {b} f-isEpic {u} {v} refl))
+  where
+  a = c
+  b = Range {c} {d} g
+  f = epicFactor {c} {d} g
+  f-isEpic = epicFactor-isEpic {c} {d} g
+  u = λ x → x
+  v = monicFactor {c} {d} g
+
+  helper : LiftingSolution {a} {b} {f} {c} {d} {g = g} {u = u} {v = v} refl → ∀ x₁ x₂ → g x₁ ≡ g x₂ → x₁ ≡ x₂
+  helper (γ , left-comm , _) x₁ x₂ p = funExt⁻ left-comm x₁ ∙ cong γ (Σ≡Prop (λ _ → propTruncIsProp) p)
+    ∙ sym (funExt⁻ left-comm x₂)
 
 EpicMonicFactorizationSystem : AxiomOfChoice → FactorizationSystem _
 EpicMonicFactorizationSystem ac =
