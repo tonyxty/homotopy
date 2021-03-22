@@ -14,7 +14,7 @@ open import FactorizationSystem (SET o)
 open import Lifting.Sets o
 open Precategory (SET o)
 
-AxiomOfChoice = ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} (B : A → Set ℓ₂) → (∀ x → ∥ B x ∥) → ∥(∀ x → B x)∥
+AxiomOfChoice = ∀ {ℓ₁ ℓ₂} {A : hSet ℓ₁} (B : typ A → hSet ℓ₂) → (∀ x → ∥ typ (B x) ∥) → ∥(∀ x → typ (B x))∥
 
 isEpic : ClassOfMorphism _
 isEpic f = isSurjection f , isSurjectionIsProp
@@ -65,7 +65,7 @@ epic-lifting→monic : ∀ {c d : ob} {g : typ c → typ d} →
   (∀ {a b : ob} {f : typ a → typ b} → typ (isEpic {a} {b} f) → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
   typ (isMonic {c} {d} g)
 epic-lifting→monic {c} {d} {g} H = injEmbedding (str c) (str d)
-  (rec (isProp→ (snd c _ _)) (λ P → helper P _ _) (H {a} {b} f-isEpic {u} {v} refl))
+  (rec (isProp→ (str c _ _)) (λ P → helper P _ _) (H {a} {b} f-isEpic {u} {v} refl))
   where
   a = c
   b = Range {c} {d} g
@@ -88,7 +88,8 @@ EpicMonicFactorizationSystem ac =
     -- perhaps isSet should be declared an instance field?
     -- but fundamentally, such h-level proofs should be automatically derived --- hence "HoTT-aware" proof assistants.
     ; factorize = λ {a} {b} → epi-mono-factorize {a} {b} _
-    ; lifting = λ {a} {b} {_} {c} {d} f-epic → epi⁺-mono-lift {a} {b} {c} {d} (ac _ f-epic)
+    ; lifting = λ {a} {b} {f} {c} {d} f-epic → epi⁺-mono-lift {a} {b} {c} {d}
+      (ac {A = b} (λ x → fiber f x , isSetΣ (str a) λ _ → isProp→isSet (str b _ _)) f-epic)
     ; ℒ-byLifting = λ {a} {b} → lifting-monic→epic {a} {b}
     ; ℛ-byLifting = λ {c} {d} → epic-lifting→monic {c} {d}
     }

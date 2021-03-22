@@ -9,7 +9,6 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Sets
 open import Cubical.HITs.PropositionalTruncation
 open import Lifting (SET ℓ)
-
 open Precategory (SET ℓ)
 
 epi⁺-mono-lift : ∀ {a b c d : ob} {f : Hom[ a , b ]} {g : Hom[ c , d ]} →
