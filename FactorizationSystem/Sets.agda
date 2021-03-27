@@ -30,7 +30,7 @@ module _ {a b : hSet o} (f : typ a → typ b) where
   epicFactor x = f x , ∣ x , refl ∣
 
   epicFactor-isEpic : isSurjection epicFactor
-  epicFactor-isEpic (y , x') = map (λ x → (fst x) , (Σ≡Prop (λ _ → propTruncIsProp) (snd x))) x'
+  epicFactor-isEpic (y , x') = map (λ(x , p) → x , (Σ≡Prop (λ _ → propTruncIsProp) p)) x'
 
   monicFactor : typ Range → typ b
   monicFactor = fst
