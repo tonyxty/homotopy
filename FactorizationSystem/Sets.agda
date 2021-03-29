@@ -46,7 +46,7 @@ module _ {a b : hSet o} (f : typ a → typ b) where
 lifting-monic→epic : ∀ {a b : ob} {f : typ a → typ b} →
   (∀ {c d : ob} {g : typ c → typ d} → typ (isMonic {c} {d} g) → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
   typ (isEpic {a} {b} f)
-lifting-monic→epic {a} {b} {f} H x = rec propTruncIsProp helper (H {c} {d} g-isMonic {u} {v} refl)
+lifting-monic→epic {a} {b} {f} H x = rec propTruncIsProp helper (H {c} {d} g-isMonic u v refl)
   where
   c = Range {a} {b} f
   d = b
@@ -65,7 +65,7 @@ epic-lifting→monic : ∀ {c d : ob} {g : typ c → typ d} →
   (∀ {a b : ob} {f : typ a → typ b} → typ (isEpic {a} {b} f) → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
   typ (isMonic {c} {d} g)
 epic-lifting→monic {c} {d} {g} H = injEmbedding (str c) (str d)
-  (rec (isProp→ (str c _ _)) (λ P → helper P _ _) (H {a} {b} f-isEpic {u} {v} refl))
+  (rec (isProp→ (str c _ _)) (λ P → helper P _ _) (H {a} {b} f-isEpic u v refl))
   where
   a = c
   b = Range {c} {d} g

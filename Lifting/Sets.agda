@@ -13,7 +13,7 @@ open Precategory (SET ℓ)
 
 epi⁺-mono-lift : ∀ {a b c d : ob} {f : Hom[ a , b ]} {g : Hom[ c , d ]} →
   ∥ (∀ x → fiber f x) ∥ → isEmbedding g → _HasLiftingProperty_ {a = a} {b = b} {c = c} {d = d} f g
-epi⁺-mono-lift {a@(A , _)} {b@(B , _)} {c@(C , _)} {d@(D , _)} {f} {g} f-epic⁺ g-monic {u = u} {v = v} P =
+epi⁺-mono-lift {a@(A , _)} {b@(B , _)} {c@(C , _)} {d@(D , _)} {f} {g} f-epic⁺ g-monic u v P =
   map (helper g-inj) f-epic⁺
   where
   g-inj : ∀ {x x'} → g x ≡ g x' → x ≡ x'

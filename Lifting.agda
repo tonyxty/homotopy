@@ -36,4 +36,4 @@ LiftingSolution : LiftingProblem f g u v → Type _
 LiftingSolution {f = f} {g = g} {u = u} {v = v} _ = Σ[ γ ∈ _ ] ((u ≡ f ⋆ γ) × (v ≡ γ ⋆ g))
 
 _HasLiftingProperty_ : Hom[ a , b ] → Hom[ c , d ] → Type _
-f HasLiftingProperty g = ∀ {u v} → (P : LiftingProblem f g u v) → ∥ LiftingSolution P ∥
+f HasLiftingProperty g = ∀ u v → (P : LiftingProblem f g u v) → ∥ LiftingSolution P ∥

@@ -18,23 +18,23 @@ private
 
 isIso→liftˡ : isIso {C = C} f → f HasLiftingProperty g
 -- why do we need the {C = C} here?
-isIso→liftˡ {f = f} {g = g} iso {u = u} {v = v} P =
+isIso→liftˡ {f = f} {g = g} iso u v P =
   ∣ inv ⋆ u , sym (sym (⋆Assoc f inv u) ∙ cong (_⋆ u) ret ∙ ⋆IdL u) ,
     sym (⋆Assoc inv u g ∙ cong (inv ⋆_) (sym P) ∙ sym (⋆Assoc inv f v) ∙ cong (_⋆ v) sec ∙ ⋆IdL v) ∣
   where open isIso iso
 
 isIso→liftʳ : isIso {C = C} g → f HasLiftingProperty g
-isIso→liftʳ {g = g} {f = f} iso {u = u} {v = v} P =
+isIso→liftʳ {g = g} {f = f} iso u v P =
   ∣ v ⋆ inv , sym (sym (⋆Assoc f v inv) ∙ cong (_⋆ inv) P ∙ ⋆Assoc u g inv ∙ cong (u ⋆_) ret ∙ ⋆IdR u) ,
     sym (⋆Assoc v inv g ∙ cong (v ⋆_) sec ∙ ⋆IdR v) ∣
   where open isIso iso
 
 ⋆-liftˡ : f₁ HasLiftingProperty g → f₂ HasLiftingProperty g → (f₁ ⋆ f₂) HasLiftingProperty g
-⋆-liftˡ {f₁ = f₁} {f₂ = f₂} LP₁ LP₂ {u = u} {v = v} P = rec propTruncIsProp (λ(h' , left-comm' , right-comm') → map
+⋆-liftˡ {f₁ = f₁} {f₂ = f₂} LP₁ LP₂ u v P = rec propTruncIsProp (λ(h' , left-comm' , right-comm') → map
   (λ(h , left-comm , right-comm) → h , left-comm' ∙ cong (f₁ ⋆_) left-comm ∙ sym (⋆Assoc f₁ f₂ h) , right-comm)
-  (LP₂ {u = h'} {v = v} right-comm')) (LP₁ {u = u} {v = f₂ ⋆ v} (sym (⋆Assoc f₁ f₂ v) ∙ P))
+  (LP₂ h' v right-comm')) (LP₁ u (f₂ ⋆ v) (sym (⋆Assoc f₁ f₂ v) ∙ P))
 
 ⋆-liftʳ : f HasLiftingProperty g₁ → f HasLiftingProperty g₂ → f HasLiftingProperty (g₁ ⋆ g₂)
-⋆-liftʳ {g₁ = g₁} {g₂ = g₂} LP₁ LP₂ {u = u} {v = v} P = rec propTruncIsProp (λ(h' , left-comm' , right-comm') → map
+⋆-liftʳ {g₁ = g₁} {g₂ = g₂} LP₁ LP₂ u v P = rec propTruncIsProp (λ(h' , left-comm' , right-comm') → map
   (λ(h , left-comm , right-comm) → h , left-comm , right-comm' ∙ cong (_⋆ g₂) right-comm ∙ ⋆Assoc h g₁ g₂)
-  (LP₁ {u = u} {v = h'} (sym left-comm'))) (LP₂ {u = u ⋆ g₁} {v = v} (P ∙ sym (⋆Assoc u g₁ g₂)))
+  (LP₁ u h' (sym left-comm'))) (LP₂ (u ⋆ g₁) v (P ∙ sym (⋆Assoc u g₁ g₂)))
