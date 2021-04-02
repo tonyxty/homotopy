@@ -3,6 +3,7 @@ open import Cubical.Categories.Category.Base
 
 module FactorizationSystem {ℓ ℓ'} (C : Precategory ℓ ℓ') where
 
+open import Prelude C
 open import Cubical.Foundations.Everything hiding (⋆)
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
@@ -18,21 +19,18 @@ private
     f : Hom[ a , b ]
     g : Hom[ c , d ]
 
-ClassOfMorphism : (p : Level) → Type _
-ClassOfMorphism p = ∀ {a b} → Hom[ a , b ] → hProp p
-
 Factorize : ClassOfMorphism p → ClassOfMorphism p → Hom[ a , b ] → Type _
 Factorize {a = a} {b = b} ℒ ℛ f =
-  Σ[ c ∈ ob ] (Σ[ g ∈ Hom[ a , c ] ] typ (ℒ g) × (Σ[ h ∈ Hom[ c , b ] ] typ (ℛ h) × (f ≡ g ⋆ h)))
+  Σ[ c ∈ ob ] (Σ[ g ∈ Hom[ a , c ] ] (g ∈ ℒ) × (Σ[ h ∈ Hom[ c , b ] ] (h ∈ ℛ) × (f ≡ g ⋆ h)))
 
 record FactorizationSystem (p : Level) : Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc p)) where
   field
     ℒ : ClassOfMorphism p
     ℛ : ClassOfMorphism p
     factorize : Factorize ℒ ℛ f
-    lifting : typ (ℒ f) → typ (ℛ g) → f HasLiftingProperty g
-    ℒ-byLifting : (∀ {c d} {g : Hom[ c , d ]} → typ (ℛ g) → f HasLiftingProperty g) → typ (ℒ f)
-    ℛ-byLifting : (∀ {a b} {f : Hom[ a , b ]} → typ (ℒ f) → f HasLiftingProperty g) → typ (ℛ g)
+    lifting : f ∈ ℒ → g ∈ ℛ → f HasLiftingProperty g
+    ℒ-byLifting : (∀ {c d} {g : Hom[ c , d ]} → g ∈ ℛ → f HasLiftingProperty g) → f ∈ ℒ
+    ℛ-byLifting : (∀ {a b} {f : Hom[ a , b ]} → f ∈ ℒ → f HasLiftingProperty g) → g ∈ ℛ
 
 record OrthogonalFactorizationSystem (p : Level) : Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc p)) where
   field

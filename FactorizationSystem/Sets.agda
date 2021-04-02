@@ -9,12 +9,13 @@ open import Cubical.Functions.Surjection
 open import Cubical.Functions.Embedding
 open import Cubical.HITs.PropositionalTruncation
 open import Function.Base
+open import Prelude (SET o)
 open import Lifting (SET o)
 open import FactorizationSystem (SET o)
 open import Lifting.Sets o
 open Precategory (SET o)
 
-AxiomOfChoice = ∀ {ℓ₁ ℓ₂} {A : hSet ℓ₁} (B : typ A → hSet ℓ₂) → (∀ x → ∥ typ (B x) ∥) → ∥(∀ x → typ (B x))∥
+AxiomOfChoice = ∀ {ℓ₁ ℓ₂} {A : hSet ℓ₁} (B : ⟨ A ⟩ → hSet ℓ₂) → (∀ x → ∥ ⟨ B x ⟩ ∥) → ∥(∀ x → ⟨ B x ⟩)∥
 
 isEpic : ClassOfMorphism _
 isEpic f = isSurjection f , isSurjectionIsProp
@@ -22,17 +23,17 @@ isEpic f = isSurjection f , isSurjectionIsProp
 isMonic : ClassOfMorphism _
 isMonic f = isEmbedding f , isEmbeddingIsProp
 
-module _ {a b : hSet o} (f : typ a → typ b) where
+module _ {a b : hSet o} (f : ⟨ a ⟩ → ⟨ b ⟩) where
   Range : hSet o
   Range = (Σ[ x ∈ _ ] ∥ fiber f x ∥) , isSetΣ (str b) λ _ → isProp→isSet propTruncIsProp
 
-  epicFactor : typ a → typ Range
+  epicFactor : ⟨ a ⟩ → ⟨ Range ⟩
   epicFactor x = f x , ∣ x , refl ∣
 
   epicFactor-isEpic : isSurjection epicFactor
   epicFactor-isEpic (y , x') = map (λ(x , p) → x , (Σ≡Prop (λ _ → propTruncIsProp) p)) x'
 
-  monicFactor : typ Range → typ b
+  monicFactor : ⟨ Range ⟩ → ⟨ b ⟩
   monicFactor = fst
 
   monicFactor-isMonic : isEmbedding monicFactor
@@ -43,9 +44,9 @@ module _ {a b : hSet o} (f : typ a → typ b) where
   epi-mono-factorize =
     Range , epicFactor , epicFactor-isEpic , monicFactor , monicFactor-isMonic , refl
 
-lifting-monic→epic : ∀ {a b : ob} {f : typ a → typ b} →
-  (∀ {c d : ob} {g : typ c → typ d} → typ (isMonic {c} {d} g) → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
-  typ (isEpic {a} {b} f)
+lifting-monic→epic : ∀ {a b : ob} {f : ⟨ a ⟩ → ⟨ b ⟩} →
+  (∀ {c d : ob} {g : ⟨ c ⟩ → ⟨ d ⟩} → ⟨ isMonic {c} {d} g ⟩ → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
+  ⟨ isEpic {a} {b} f ⟩
 lifting-monic→epic {a} {b} {f} H x = rec propTruncIsProp helper (H {c} {d} g-isMonic u v refl)
   where
   c = Range {a} {b} f
@@ -61,9 +62,9 @@ lifting-monic→epic {a} {b} {f} H x = rec propTruncIsProp helper (H {c} {d} g-i
     helper' : fiber u (γ x) → fiber f x
     helper' (x' , p) = x' , cong fst p ∙ sym (funExt⁻ right-comm x)
 
-epic-lifting→monic : ∀ {c d : ob} {g : typ c → typ d} →
-  (∀ {a b : ob} {f : typ a → typ b} → typ (isEpic {a} {b} f) → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
-  typ (isMonic {c} {d} g)
+epic-lifting→monic : ∀ {c d : ob} {g : ⟨ c ⟩ → ⟨ d ⟩} →
+  (∀ {a b : ob} {f : ⟨ a ⟩ → ⟨ b ⟩} → ⟨ isEpic {a} {b} f ⟩ → (_HasLiftingProperty_ {a} {b} {c} {d} f g)) →
+  ⟨ isMonic {c} {d} g ⟩
 epic-lifting→monic {c} {d} {g} H = injEmbedding (str c) (str d)
   (rec (isProp→ (str c _ _)) (λ P → helper P _ _) (H {a} {b} f-isEpic u v refl))
   where
